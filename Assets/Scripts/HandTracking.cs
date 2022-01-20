@@ -197,4 +197,9 @@ public class HandTracking : MonoBehaviour
     {
         this.showObjects = show;
     }
+
+    public bool isFingerEnabled(GameObject fingerObject)
+    {
+        return fingerObject.GetComponent<Renderer>().enabled;
+    }
 }
