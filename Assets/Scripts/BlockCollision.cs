@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Microsoft.MixedReality.Toolkit.UI; //to locate ObjectManipulator script
 
 /*using System.Collections;
 
@@ -17,12 +18,48 @@ public class BlockCollision : MonoBehaviour
 	void Start(){
 		stickedBlocks.Add(this.gameObject);
 	}
-	
-	void OnCollisionEnter(Collision other) {
-		if (other.gameObject.layer != LayerMask.NameToLayer("UI")){
+
+    private void Update()
+    {
+		//only the highest parent can be manipulated thanks to the ObjectManipulator script,
+		//it's disabled for its children
+		if (transform.parent != null)
+		{
+			transform.parent.GetComponent<ObjectManipulator>().enabled = true;
+			transform.GetComponent<ObjectManipulator>().enabled = false;
+		}
+
+	}
+
+    void OnCollisionEnter(Collision other) {
+		if (other.gameObject.layer == LayerMask.NameToLayer("Block")){
+
+			// make the object with the most children be parent of the other object
+			/*if (gameObject.transform.childCount > other.gameObject.transform.childCount)
+            {
+                Transform lowestChild = gameObject.transform;
+                while (lowestChild.childCount > 0)
+                {
+					lowestChild=lowestChild.GetChild(0);
+				}
+				other.gameObject.transform.parent = lowestChild;
+
+            }
+            else
+            {
+				Transform lowestChild = other.gameObject.transform;
+				while (lowestChild.childCount > 0)
+				{
+					lowestChild = lowestChild.GetChild(0);
+				}
+				gameObject.transform.parent = lowestChild;
+
+			}*/
+			//Destroy(other.gameObject.GetComponent<Rigidbody>());
+
 			other.gameObject.transform.parent = gameObject.transform;
-			//CombineMesh();
-			
+			other.gameObject.GetComponent<ObjectManipulator>().enabled = false;
+
 			Debug.Log("blocks collided");
 		}
 	}
@@ -45,7 +82,7 @@ public class BlockCollision : MonoBehaviour
         transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine, false);
         transform.gameObject.SetActive(true);
     }*/
-	
+
 	/*protected Transform stuckTo = null;
 	protected Vector3 offset = Vector3.zero;
 	protected Rigidbody rb;
