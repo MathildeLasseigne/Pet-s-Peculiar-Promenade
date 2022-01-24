@@ -133,13 +133,30 @@ public class AnimalMoveManagerCharacterController : MonoBehaviour
 
     /// <summary>
     /// Calculate the Vector3 of otherObjLocaltransform relative to localTransform
+    /// https://answers.unity.com/questions/154176/transformtransformpoint-vs-transformdirection.html
     /// </summary>
     /// <param name="localTransform"></param>
     /// <param name="otherObjLocaltransform"></param>
     /// <returns></returns>
     protected Vector3 IntoLocalCoord(Transform localTransform, Transform otherObjLocaltransform)
     {
-        Vector3 WorldPosition = otherObjLocaltransform.TransformPoint(otherObjLocaltransform.position);
+        Vector3 WorldPosition = otherObjLocaltransform.TransformDirection(otherObjLocaltransform.position);
         return localTransform.InverseTransformDirection(WorldPosition);
+        //TransformDirection() is used here to transform a position from object space to world space.
+        //The scale of your game object is not taken into account.
+        //Vector3 pointObjectSpace = new Vector3(2f, 0.5f, 0f);
+        /*Vector3 pointWorldSpace = otherObjLocaltransform.TransformDirection(otherObjLocaltransform.position);
+        //pointWorldSpace is now (0.8, 1.9, 0)
+        pointWorldSpace += otherObjLocaltransform.position; //Add this to fix the lack of position.
+                                                          //pointWorldSpace is now (5, 5, 0)
+
+        //InverseTransformDirection() is used here to transform a position from world space to object space.
+        //The scale of your game object is not taken into account.
+        //pointWorldSpace = new Vector3(5f, 5f, 0f);
+        pointWorldSpace -= localTransform.position; //Add this to fix the lack of position.
+                                                          //pointWorldSpace is now (0.8, 1.9, 0)
+        return = localTransform.InverseTransformDirection(pointWorldSpace);
+        //return in pointObjectSpace is now (2f, 0.5f, 0f)
+        */
     }
 }

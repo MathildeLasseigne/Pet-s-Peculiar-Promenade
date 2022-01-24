@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class AnimalMoveManager : MonoBehaviour
 {
-    public float Speed = 0.3f;
+    [SerializeField]
+    private GameObject AnimalBody;
+
+    public float Speed = 1f;
     public float JumpHeight = 2f;
     public float GroundDistance = 0.2f;
     public float DashDistance = 5f;
@@ -16,23 +19,47 @@ public class AnimalMoveManager : MonoBehaviour
     private Transform _groundChecker;
 
     public HandTracking handTracking;
-    public float handDetectionRange = 3;
-    public float handDetectionRangeMin = 0.3f;
+    public Vector2 handDetectionRange = new Vector2(0.5f, 3.5f);
+
+    [Header("CharacterController")]
+    private CharacterController _controller;
+    private Vector3 _velocity;
+    public Vector3 Drag;
+    public float Gravity = -9.81f;
+
 
     void Start()
     {
         _body = GetComponent<Rigidbody>();
+        _controller = GetComponent<CharacterController>();
         _groundChecker = transform.GetChild(0);
+        if(_body && _controller)
+        {
+            _controller = null;
+        }
     }
 
     void Update()
     {
         _isGrounded = Physics.CheckSphere(_groundChecker.position, GroundDistance, Ground, QueryTriggerInteraction.Ignore);
 
+        if (_body)
+        {
+            _inputs = Vector3.zero;
 
-        _inputs = Vector3.zero;
+            moveBodyTowardHand();
 
-        moveTowardHand();
+        } else if (_controller)
+        {
+            _isGrounded = _controller.isGrounded;
+            if (_isGrounded && _velocity.y < 0)
+                _velocity.y = 0f;
+
+            moveControllerTowardHand();
+            AddGravityAndFriction(false);
+        }
+
+        
 
         /*_inputs.x = Input.GetAxis("Horizontal");
         _inputs.z = Input.GetAxis("Vertical");
@@ -55,14 +82,19 @@ public class AnimalMoveManager : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (_inputs != Vector3.zero)
-            transform.forward = _inputs;
 
-        //_body.MovePosition(_body.position + _inputs * Speed * Time.fixedDeltaTime);
-        MoveToTarget(_inputs);
+        if (_body)
+        {
+            if (_inputs != Vector3.zero)
+                transform.forward = _inputs;
+
+            //_body.MovePosition(_body.position + _inputs * Speed * Time.fixedDeltaTime);
+            MoveBodyToTarget(_inputs);
+        }
+        
     }
 
-    private void moveTowardHand()
+    private void moveBodyTowardHand()
     {
 
         _inputs = Vector3.zero;
@@ -76,13 +108,19 @@ public class AnimalMoveManager : MonoBehaviour
         if (! handTracking.isFingerEnabled(FingerLeft) && handTracking.isFingerEnabled(FingerRight))
         {
             goal = FingerRight.transform.TransformPoint(FingerRight.transform.position);
+            //goal = FingerRight.transform.position;
         } else if (handTracking.isFingerEnabled(FingerLeft) && !handTracking.isFingerEnabled(FingerRight))
         {
             goal = FingerLeft.transform.TransformPoint(FingerLeft.transform.position);
+            //goal = FingerLeft.transform.position;
         } else if (handTracking.isFingerEnabled(FingerLeft) && handTracking.isFingerEnabled(FingerRight))
         {
             var FingerLeftWorldRelative = FingerLeft.transform.TransformPoint(FingerLeft.transform.position);
             var FingerRightWorldRelative = FingerRight.transform.TransformPoint(FingerRight.transform.position);
+            
+            /*var FingerLeftWorldRelative = FingerLeft.transform.position;
+            var FingerRightWorldRelative = FingerRight.transform.position;
+            */
 
             //Choose the closest finger
             goal = Vector3.Distance(transform.position, FingerLeftWorldRelative) < Vector3.Distance(transform.position, FingerRightWorldRelative) ? FingerLeftWorldRelative : FingerRightWorldRelative;
@@ -94,7 +132,7 @@ public class AnimalMoveManager : MonoBehaviour
         goal.y = 0;
         if (hasFingers)
         {
-            if (Vector3.Distance(transform.position, goal) < handDetectionRange && Vector3.Distance(transform.position, goal) > handDetectionRangeMin)
+            if (Vector3.Distance(transform.position, goal) < handDetectionRange.y && Vector3.Distance(transform.position, goal) > handDetectionRange.x)
             {
                 Debug.Log("Check passed");
                 _inputs = goal;
@@ -112,7 +150,7 @@ public class AnimalMoveManager : MonoBehaviour
     /// <summary>
     /// Physic related
     /// </summary>
-    private void MoveToTarget(Vector3 targetPosition)
+    private void MoveBodyToTarget(Vector3 targetPosition)
     {
         if (targetPosition == transform.position)
             return;
@@ -136,4 +174,161 @@ public class AnimalMoveManager : MonoBehaviour
         }
         */
     }
+
+    //------------------------------------------------------------CHARACTER CONTROLLER----------------------------------------------------------------------------------------------------------//
+
+
+
+    private void moveControllerTowardHand()
+    {
+
+
+        var FingerLeft = handTracking.getIndexObject(false);
+        var FingerRight = handTracking.getIndexObject(true);
+
+        bool hasFingers = true;
+
+        Vector3 goal = Vector3.zero;
+        if (!handTracking.isFingerEnabled(FingerLeft) && handTracking.isFingerEnabled(FingerRight)) //Only Right hand
+        {
+            goal = IntoLocalCoord(transform, FingerRight.transform);
+        }
+        else if (handTracking.isFingerEnabled(FingerLeft) && !handTracking.isFingerEnabled(FingerRight)) //Only left hand
+        {
+            goal = IntoLocalCoord(transform, FingerLeft.transform);
+        }
+        else if (handTracking.isFingerEnabled(FingerLeft) && handTracking.isFingerEnabled(FingerRight)) //Both hands
+        {
+            var FingerLeftRelative = IntoLocalCoord(transform, FingerLeft.transform);
+            var FingerRightRelative = IntoLocalCoord(transform, FingerRight.transform);
+
+            //Choose the closest finger
+            goal = Vector3.Distance(transform.position, FingerLeftRelative) < Vector3.Distance(transform.position, FingerRightRelative) ? FingerLeftRelative : FingerRightRelative;
+
+        }
+        else
+        {
+            hasFingers = false;
+        }
+        goal.y = 0;
+        if (hasFingers)
+        {
+            if (Vector3.Distance(transform.position, goal) < handDetectionRange.y && Vector3.Distance(transform.position, goal) > handDetectionRange.x)
+            {
+                MoveControllerToPoint(goal);
+
+            }
+            else
+            {
+                //Debug.Log("Check not passed");
+            }
+        }
+
+
+    }
+
+    /// <summary>
+    /// From https://answers.unity.com/questions/599028/how-to-move-character-controller-from-point-to-poi.html
+    /// </summary>
+    /// <param name="targetPosition"></param>
+    void MoveControllerToPoint(Vector3 targetPosition)
+    {
+        if (targetPosition == transform.position)
+            return;
+
+        Vector3 moveDiff = targetPosition - transform.position;
+        //Vector3 moveDir = moveDiff.normalized * 15f * Time.deltaTime;
+        Vector3 moveDir = moveDiff.normalized * Time.deltaTime;
+        Vector3 move;
+        if (moveDir.sqrMagnitude < moveDiff.sqrMagnitude)
+        {
+            move = moveDir * Speed;
+            //Debug.Log("Choose dir");
+        }
+        else
+        {
+            move = moveDiff * Speed;
+            Debug.Log("Choose diff");
+        }
+
+        _controller.Move(move);
+        if (AnimalBody)
+        {
+            if (move != Vector3.zero)
+            {
+                move.y = 0;
+               AnimalBody.transform.forward = move;
+            }
+        }
+        
+    }
+
+    private void AddGravityAndFriction(bool addFriction)
+    {
+        _velocity.y += Gravity * Time.deltaTime; //Add gravity
+
+        if (addFriction)
+        {
+            //Add friction
+            _velocity.x /= 1 + Drag.x * Time.deltaTime;
+            _velocity.y /= 1 + Drag.y * Time.deltaTime;
+            _velocity.z /= 1 + Drag.z * Time.deltaTime;
+        }
+        _controller.Move(_velocity * Time.deltaTime);
+    }
+
+
+
+
+
+
+    /// <summary>
+    /// Calculate the Vector3 of otherObjLocaltransform relative to localTransform
+    /// https://answers.unity.com/questions/154176/transformtransformpoint-vs-transformdirection.html
+    /// </summary>
+    /// <param name="localTransform"></param>
+    /// <param name="otherObjLocaltransform"></param>
+    /// <returns></returns>
+    protected Vector3 IntoLocalCoord(Transform localTransform, Transform otherObjLocaltransform)
+    {
+        /*Vector3 WorldPosition = otherObjLocaltransform.TransformDirection(otherObjLocaltransform.position);
+        return localTransform.InverseTransformDirection(WorldPosition);
+        */
+
+
+        Vector3 pointWorldSpace = otherObjLocaltransform.TransformDirection(otherObjLocaltransform.position);
+        pointWorldSpace += otherObjLocaltransform.position;
+        pointWorldSpace -= localTransform.position;
+        return localTransform.InverseTransformDirection(pointWorldSpace);
+        
+        
+
+        /*Vector3 WorldPosition = otherObjLocaltransform.TransformPoint(otherObjLocaltransform.position);
+        return localTransform.InverseTransformPoint(WorldPosition);
+        */
+        
+
+        //TransformDirection() is used here to transform a position from object space to world space.
+        //The scale of your game object is not taken into account.
+        //Vector3 pointObjectSpace = new Vector3(2f, 0.5f, 0f);
+        /*Vector3 pointWorldSpace = otherObjLocaltransform.TransformDirection(otherObjLocaltransform.position);
+        //pointWorldSpace is now (0.8, 1.9, 0)
+        pointWorldSpace += otherObjLocaltransform.position; //Add this to fix the lack of position.
+                                                          //pointWorldSpace is now (5, 5, 0)
+
+        //InverseTransformDirection() is used here to transform a position from world space to object space.
+        //The scale of your game object is not taken into account.
+        //pointWorldSpace = new Vector3(5f, 5f, 0f);
+        pointWorldSpace -= localTransform.position; //Add this to fix the lack of position.
+                                                          //pointWorldSpace is now (0.8, 1.9, 0)
+        return localTransform.InverseTransformDirection(pointWorldSpace);
+        //return in pointObjectSpace is now (2f, 0.5f, 0f)
+        */
+    }
+
+    protected void rotateBasedOnSlope(Object ObjectToRotate, float SlopeAngle, Vector3 SlopeDirection)
+    {
+        
+    }
+
 }
