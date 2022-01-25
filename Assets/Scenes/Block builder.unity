@@ -162,7 +162,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CollidingGameObject: {fileID: 0}
-  enableManipulator: 0
   velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &148845749
 MonoBehaviour:
@@ -203,7 +202,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hostTransform: {fileID: 148845758}
-  manipulationType: 1
+  manipulationType: -1
   twoHandedManipulationType: 7
   allowFarManipulation: 1
   useForcesForNearManipulation: 0
@@ -810,7 +809,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CollidingGameObject: {fileID: 0}
-  enableManipulator: 0
   velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &1065806609
 MonoBehaviour:
@@ -851,7 +849,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hostTransform: {fileID: 1065806618}
-  manipulationType: 1
+  manipulationType: -1
   twoHandedManipulationType: 7
   allowFarManipulation: 1
   useForcesForNearManipulation: 0
@@ -867,7 +865,7 @@ MonoBehaviour:
   rotateLerpTime: 0.0001
   scaleLerpTime: 0.0001
   enableConstraints: 1
-  constraintsManager: {fileID: 1065806609}
+  constraintsManager: {fileID: 148845749}
   elasticsManager: {fileID: 0}
   onManipulationStarted:
     m_PersistentCalls:
@@ -1382,7 +1380,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CollidingGameObject: {fileID: 0}
-  enableManipulator: 0
   velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &1323226117
 MonoBehaviour:
@@ -1423,7 +1420,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hostTransform: {fileID: 1323226126}
-  manipulationType: 1
+  manipulationType: -1
   twoHandedManipulationType: 7
   allowFarManipulation: 1
   useForcesForNearManipulation: 0
@@ -1439,7 +1436,7 @@ MonoBehaviour:
   rotateLerpTime: 0.0001
   scaleLerpTime: 0.0001
   enableConstraints: 1
-  constraintsManager: {fileID: 1323226117}
+  constraintsManager: {fileID: 148845749}
   elasticsManager: {fileID: 0}
   onManipulationStarted:
     m_PersistentCalls:
@@ -1766,7 +1763,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CollidingGameObject: {fileID: 0}
-  enableManipulator: 0
   velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &1364005034
 MonoBehaviour:
@@ -1807,7 +1803,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hostTransform: {fileID: 1364005043}
-  manipulationType: 1
+  manipulationType: -1
   twoHandedManipulationType: 7
   allowFarManipulation: 1
   useForcesForNearManipulation: 0
@@ -1823,7 +1819,7 @@ MonoBehaviour:
   rotateLerpTime: 0.0001
   scaleLerpTime: 0.0001
   enableConstraints: 1
-  constraintsManager: {fileID: 1364005034}
+  constraintsManager: {fileID: 148845749}
   elasticsManager: {fileID: 0}
   onManipulationStarted:
     m_PersistentCalls:
