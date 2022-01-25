@@ -47,7 +47,7 @@ public class BlockCollision : MonoBehaviour
 	}
 	
 	//old code
-	void OnTriggerEnter(Collider other) {
+	/*void OnTriggerEnter(Collider other) {
         if (other.gameObject.layer == LayerMask.NameToLayer("Block")){
             //ignore the OnTriggerEnter event for the object immobile/slower than the other object
             //if(GetComponent<Rigidbody>().velocity.magnitude < other.gameObject.GetComponent<Rigidbody>().velocity.magnitude)
@@ -60,13 +60,13 @@ public class BlockCollision : MonoBehaviour
             other.gameObject.GetComponent<ObjectManipulator>().enabled = false;
 			Destroy(other.gameObject.GetComponent<Rigidbody>());
         }
-    }
+    }*/
 
-    /*void OnTriggerEnter(Collider other) {
+    void OnTriggerEnter(Collider other) {
 		if (other.gameObject.layer == LayerMask.NameToLayer("Block")){
 
 			//ignore the OnTriggerEnter event for the object immobile/slower than the other object
-			if(GetComponent<Rigidbody>().velocity.magnitude < other.gameObject.GetComponent<Rigidbody>().velocity.magnitude)
+			if(velocity.magnitude < other.gameObject.GetComponent<BlockCollision>().velocity.magnitude)
 			{
 				return;
 			}
@@ -99,11 +99,15 @@ public class BlockCollision : MonoBehaviour
 		
 		//the highest parent of this block (root) becomes the parent
 		//of the highest parent of the colliding block (CollidingGameObject...root)
-		CollidingGameObject.transform.root.parent = gameObject.transform.root;
+		//CollidingGameObject.transform.root.parent = gameObject.transform.root;
+		
+		CollidingGameObject.transform.parent = gameObject.transform;
+		Destroy(CollidingGameObject.GetComponent<Rigidbody>());
+		
 		//CollidingGameObject.GetComponent<ObjectManipulator>().enabled = false;
 		enableManipulator = false;
 		Debug.Log("blocks merged");
-	}*/
+	}
 	
 	
 	
