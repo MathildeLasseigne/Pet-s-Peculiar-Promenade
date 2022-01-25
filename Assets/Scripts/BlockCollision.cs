@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Microsoft.MixedReality.Toolkit.UI; //to locate ObjectManipulator script
+using Microsoft.MixedReality.Toolkit.Input; //to locate NearInteractionGrabbable script
 
 /*using System.Collections;
 
@@ -26,12 +27,16 @@ public class BlockCollision : MonoBehaviour
 		if (transform.parent != null)
 		{
 			transform.parent.GetComponent<ObjectManipulator>().enabled = true;
+			transform.parent.GetComponent<NearInteractionGrabbable>().enabled = true;
+
 			transform.GetComponent<ObjectManipulator>().enabled = false;
+			transform.GetComponent<NearInteractionGrabbable>().enabled = false;
+
 		}
 
 	}
 
-    void OnCollisionEnter(Collision other) {
+    void OnTriggerEnter(Collider other) {
 		if (other.gameObject.layer == LayerMask.NameToLayer("Block")){
 
 			// make the object with the most children be parent of the other object
@@ -56,7 +61,14 @@ public class BlockCollision : MonoBehaviour
 
 			}*/
 			//Destroy(other.gameObject.GetComponent<Rigidbody>());
-
+			
+			
+			//ignore the OnTriggerEnter event for the object immobile/slower than the other object
+			if(GetComponent<Rigidbody>().velocity.magnitude < other.gameObject.GetComponent<Rigidbody>().velocity.magnitude)
+			{
+				return;
+			}
+			
 			other.gameObject.transform.parent = gameObject.transform;
 			other.gameObject.GetComponent<ObjectManipulator>().enabled = false;
 
