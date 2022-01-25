@@ -14,67 +14,104 @@ using Microsoft.MixedReality.Toolkit.Input; //to locate NearInteractionGrabbable
 [RequireComponent(typeof(MeshRenderer))]*/
 public class BlockCollision : MonoBehaviour
 {
-	public List <GameObject> stickedBlocks = new List<GameObject> ();
+	//public List <GameObject> stickedBlocks = new List<GameObject> ();
+	
+	//public for debug purpose in the inspector
+	public GameObject CollidingGameObject;
+	public bool enableManipulator=false;
 
 	void Start(){
-		stickedBlocks.Add(this.gameObject);
+		//stickedBlocks.Add(this.gameObject);
 	}
+	
+	private Vector3 previous;
+	public Vector3 velocity;
 
     private void Update()
     {
+		velocity = (transform.position - previous) / Time.deltaTime;
+		previous = transform.position;
+		
 		//only the highest parent can be manipulated thanks to the ObjectManipulator script,
 		//it's disabled for its children
-		if (transform.parent != null)
+		if (transform.parent != null && !enableManipulator)
 		{
-			transform.parent.GetComponent<ObjectManipulator>().enabled = true;
-			transform.parent.GetComponent<NearInteractionGrabbable>().enabled = true;
-
 			transform.GetComponent<ObjectManipulator>().enabled = false;
 			transform.GetComponent<NearInteractionGrabbable>().enabled = false;
 
+		} else{
+			transform.GetComponent<ObjectManipulator>().enabled = true;
+			transform.GetComponent<NearInteractionGrabbable>().enabled = true;
 		}
 
 	}
+	
+	//old code
+	void OnTriggerEnter(Collider other) {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Block")){
+            //ignore the OnTriggerEnter event for the object immobile/slower than the other object
+            //if(GetComponent<Rigidbody>().velocity.magnitude < other.gameObject.GetComponent<Rigidbody>().velocity.magnitude)
+            if(velocity.magnitude < other.gameObject.GetComponent<BlockCollision>().velocity.magnitude)
+            {
+                return;
+            }
+            
+            other.gameObject.transform.parent = gameObject.transform;
+            other.gameObject.GetComponent<ObjectManipulator>().enabled = false;
+			Destroy(other.gameObject.GetComponent<Rigidbody>());
+        }
+    }
 
-    void OnTriggerEnter(Collider other) {
+    /*void OnTriggerEnter(Collider other) {
 		if (other.gameObject.layer == LayerMask.NameToLayer("Block")){
 
-			// make the object with the most children be parent of the other object
-			/*if (gameObject.transform.childCount > other.gameObject.transform.childCount)
-            {
-                Transform lowestChild = gameObject.transform;
-                while (lowestChild.childCount > 0)
-                {
-					lowestChild=lowestChild.GetChild(0);
-				}
-				other.gameObject.transform.parent = lowestChild;
-
-            }
-            else
-            {
-				Transform lowestChild = other.gameObject.transform;
-				while (lowestChild.childCount > 0)
-				{
-					lowestChild = lowestChild.GetChild(0);
-				}
-				gameObject.transform.parent = lowestChild;
-
-			}*/
-			//Destroy(other.gameObject.GetComponent<Rigidbody>());
-			
-			
 			//ignore the OnTriggerEnter event for the object immobile/slower than the other object
 			if(GetComponent<Rigidbody>().velocity.magnitude < other.gameObject.GetComponent<Rigidbody>().velocity.magnitude)
 			{
 				return;
 			}
 			
-			other.gameObject.transform.parent = gameObject.transform;
-			other.gameObject.GetComponent<ObjectManipulator>().enabled = false;
-
+			//other.gameObject.transform.parent = gameObject.transform;
+			//other.gameObject.GetComponent<ObjectManipulator>().enabled = false;
+			
+			CollidingGameObject=other.gameObject;
+			enableManipulator = true;
 			Debug.Log("blocks collided");
 		}
 	}
+	
+	void OnTriggerExit(Collider other) {
+		if (other.gameObject.layer == LayerMask.NameToLayer("Block") && other.gameObject==CollidingGameObject){
+			CollidingGameObject=null;
+			enableManipulator = false;
+		}
+	}
+	
+	public void mergeBlocks(){
+
+		if(CollidingGameObject==null)
+		{
+			return;
+		}
+			
+		//CollidingGameObject.transform.parent = gameObject.transform;
+		//CollidingGameObject.GetComponent<ObjectManipulator>().enabled = false;
+		
+		//the highest parent of this block (root) becomes the parent
+		//of the highest parent of the colliding block (CollidingGameObject...root)
+		CollidingGameObject.transform.root.parent = gameObject.transform.root;
+		//CollidingGameObject.GetComponent<ObjectManipulator>().enabled = false;
+		enableManipulator = false;
+		Debug.Log("blocks merged");
+	}*/
+	
+	
+	
+	
+	
+	
+	
+	
 
 	/*void CombineMesh()
     {
