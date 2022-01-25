@@ -18,23 +18,26 @@ public class BlockCollision : MonoBehaviour
 	
 	//public for debug purpose in the inspector
 	public GameObject CollidingGameObject;
-	public bool enableManipulator=false;
+	//public bool enableManipulator=false;
+	
+	//getting speed without using rigid body
+	private Vector3 previous;
+	public Vector3 velocity;
 
 	void Start(){
 		//stickedBlocks.Add(this.gameObject);
 	}
-	
-	private Vector3 previous;
-	public Vector3 velocity;
 
     private void Update()
     {
+		//update speed
 		velocity = (transform.position - previous) / Time.deltaTime;
 		previous = transform.position;
 		
 		//only the highest parent can be manipulated thanks to the ObjectManipulator script,
 		//it's disabled for its children
-		if (transform.parent != null && !enableManipulator)
+		//if (transform.parent != null && !enableManipulator)
+		if (transform.parent != null)
 		{
 			transform.GetComponent<ObjectManipulator>().enabled = false;
 			transform.GetComponent<NearInteractionGrabbable>().enabled = false;
@@ -70,20 +73,20 @@ public class BlockCollision : MonoBehaviour
 			{
 				return;
 			}
+			CollidingGameObject=other.gameObject;
+			Debug.Log("blocks collided");
 			
 			//other.gameObject.transform.parent = gameObject.transform;
 			//other.gameObject.GetComponent<ObjectManipulator>().enabled = false;
-			
-			CollidingGameObject=other.gameObject;
-			enableManipulator = true;
-			Debug.Log("blocks collided");
+			//enableManipulator = true;
+
 		}
 	}
 	
 	void OnTriggerExit(Collider other) {
 		if (other.gameObject.layer == LayerMask.NameToLayer("Block") && other.gameObject==CollidingGameObject){
 			CollidingGameObject=null;
-			enableManipulator = false;
+			//enableManipulator = false;
 		}
 	}
 	
@@ -93,20 +96,17 @@ public class BlockCollision : MonoBehaviour
 		{
 			return;
 		}
-			
-		//CollidingGameObject.transform.parent = gameObject.transform;
-		//CollidingGameObject.GetComponent<ObjectManipulator>().enabled = false;
+
+		CollidingGameObject.transform.parent = gameObject.transform;
+		Destroy(CollidingGameObject.GetComponent<Rigidbody>());
+		Debug.Log("blocks merged");
 		
+		//CollidingGameObject.GetComponent<ObjectManipulator>().enabled = false;
+		//enableManipulator = false;
 		//the highest parent of this block (root) becomes the parent
 		//of the highest parent of the colliding block (CollidingGameObject...root)
 		//CollidingGameObject.transform.root.parent = gameObject.transform.root;
-		
-		CollidingGameObject.transform.parent = gameObject.transform;
-		Destroy(CollidingGameObject.GetComponent<Rigidbody>());
-		
-		//CollidingGameObject.GetComponent<ObjectManipulator>().enabled = false;
-		enableManipulator = false;
-		Debug.Log("blocks merged");
+
 	}
 	
 	
@@ -116,7 +116,7 @@ public class BlockCollision : MonoBehaviour
 	
 	
 	
-
+	//old
 	/*void CombineMesh()
     {
         MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
