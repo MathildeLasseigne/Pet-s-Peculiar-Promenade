@@ -41,7 +41,14 @@ public class AnimalMoveManager : MonoBehaviour
 
     void Update()
     {
-        _isGrounded = Physics.CheckSphere(_groundChecker.position, GroundDistance, Ground, QueryTriggerInteraction.Ignore);
+        if (_body)
+        {
+            _isGrounded = Physics.CheckSphere(_groundChecker.position, GroundDistance, Ground, QueryTriggerInteraction.Ignore);
+        } else
+        {
+            _isGrounded = _controller.isGrounded;
+        }
+        
 
         if (_body)
         {
@@ -278,6 +285,13 @@ public class AnimalMoveManager : MonoBehaviour
     }
 
 
+    public void JumpController()
+    {
+        if (_isGrounded)
+            _velocity.y += Mathf.Sqrt(JumpHeight * -2f * Gravity);
+
+
+    }
 
 
 
