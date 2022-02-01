@@ -2,61 +2,101 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using Microsoft.MixedReality.Toolkit.Utilities;
+
+enum Hand { Left, Right, None}
+enum RangeComparator { Close, InRange, Far, Other }
+class HandSelection
+{
+    public HandTracking handTracking { get; }
+    public Hand handedness { get; private set; }
+
+    public RangeComparator rangePosition = RangeComparator.Other;
+
+    public HandSelection(HandTracking handTracking)
+    {
+        this.handTracking = handTracking;
+        handedness = Hand.None;
+    }
+
+    /// <summary>
+    /// Check if a hand is currently selected
+    /// </summary>
+    /// <returns></returns>
+    public bool HasHands()
+    {
+        return handedness != Hand.None;
+    }
+
+    /// <summary>
+    /// Check if the current hand selected is the right one.
+    /// </summary>
+    /// <returns>False if it is the left hand or no hand is selected</returns>
+    public bool isRightHand()
+    {
+        return handedness == Hand.Right;
+    }
+
+    /// <summary>
+    /// Set the handedness. If is None, set the rangePosition to Other
+    /// </summary>
+    /// <param name="handedness"></param>
+    public void setHandedness(Hand handedness)
+    {
+        if(handedness == Hand.None)
+        {
+            rangePosition = RangeComparator.Other;
+        }
+        this.handedness = handedness;
+    }
+}
 public class AnimalMoveManager : MonoBehaviour
 {
+    public bool debug = false;
+
     [SerializeField]
     private GameObject AnimalBody;
 
+    [Header("Move properties")]
     public float Speed = 1f;
     public float JumpHeight = 2f;
     public float GroundDistance = 0.2f;
     public float DashDistance = 5f;
     public LayerMask Ground;
 
-    private Rigidbody _body;
-    private Vector3 _inputs = Vector3.zero;
-    private bool _isGrounded = true;
-    private Transform _groundChecker;
-
-    public HandTracking handTracking;
-    public Vector2 handDetectionRange = new Vector2(0.5f, 3.5f);
-
-    [Header("CharacterController")]
-    private CharacterController _controller;
     private Vector3 _velocity;
     public Vector3 Drag;
     public float Gravity = -9.81f;
 
+    private bool _isGrounded = true;
+    private Transform _groundChecker;
+
+    [Header("Hand properties")]
+    public HandTracking handTracking;
+    public Vector2 handDetectionRange = new Vector2(0.5f, 3.5f);
+    private HandSelection handSelection;
+
+    private Vector3 currentTarget = Vector3.zero; //The position of the index of the current hand selected. Is Vector3.zero if no target is selected
+
+    [Header("CharacterController")]
+    private CharacterController _controller;
+
+    
 
     void Start()
     {
-        _body = GetComponent<Rigidbody>();
         _controller = GetComponent<CharacterController>();
         _groundChecker = transform.GetChild(0);
-        if(_body && _controller)
-        {
-            _controller = null;
-        }
+        handSelection = new HandSelection(handTracking);
     }
 
     void Update()
     {
-        if (_body)
-        {
-            _isGrounded = Physics.CheckSphere(_groundChecker.position, GroundDistance, Ground, QueryTriggerInteraction.Ignore);
-        } else
-        {
-            _isGrounded = _controller.isGrounded;
-        }
+        CalculateNearestHand();
         
+        _isGrounded = _controller.isGrounded;
 
-        if (_body)
-        {
-            _inputs = Vector3.zero;
-
-            moveBodyTowardHand();
-
-        } else if (_controller)
+        if (_controller)
         {
             _isGrounded = _controller.isGrounded;
             if (_isGrounded && _velocity.y < 0)
@@ -68,159 +108,28 @@ public class AnimalMoveManager : MonoBehaviour
 
         
 
-        /*_inputs.x = Input.GetAxis("Horizontal");
-        _inputs.z = Input.GetAxis("Vertical");
-        if (_inputs != Vector3.zero)
-            transform.forward = _inputs;
-        */
-
-        /*if (Input.GetButtonDown("Jump") && _isGrounded)
-        {
-            _body.AddForce(Vector3.up * Mathf.Sqrt(JumpHeight * -2f * Physics.gravity.y), ForceMode.VelocityChange);
-        }
-        if (Input.GetButtonDown("Dash"))
-        {
-            Vector3 dashVelocity = Vector3.Scale(transform.forward, DashDistance * new Vector3((Mathf.Log(1f / (Time.deltaTime * _body.drag + 1)) / -Time.deltaTime), 0, (Mathf.Log(1f / (Time.deltaTime * _body.drag + 1)) / -Time.deltaTime)));
-            _body.AddForce(dashVelocity, ForceMode.VelocityChange);
-        }
-        */
     }
 
 
-    void FixedUpdate()
-    {
 
-        if (_body)
-        {
-            if (_inputs != Vector3.zero)
-                transform.forward = _inputs;
-
-            //_body.MovePosition(_body.position + _inputs * Speed * Time.fixedDeltaTime);
-            MoveBodyToTarget(_inputs);
-        }
-        
-    }
-
-    private void moveBodyTowardHand()
-    {
-
-        _inputs = Vector3.zero;
-
-        var FingerLeft = handTracking.getIndexObject(false);
-        var FingerRight = handTracking.getIndexObject(true);
-
-        bool hasFingers = true;
-
-        Vector3 goal = Vector3.zero;
-        if (! handTracking.isFingerEnabled(FingerLeft) && handTracking.isFingerEnabled(FingerRight))
-        {
-            goal = FingerRight.transform.TransformPoint(FingerRight.transform.position);
-            //goal = FingerRight.transform.position;
-        } else if (handTracking.isFingerEnabled(FingerLeft) && !handTracking.isFingerEnabled(FingerRight))
-        {
-            goal = FingerLeft.transform.TransformPoint(FingerLeft.transform.position);
-            //goal = FingerLeft.transform.position;
-        } else if (handTracking.isFingerEnabled(FingerLeft) && handTracking.isFingerEnabled(FingerRight))
-        {
-            var FingerLeftWorldRelative = FingerLeft.transform.TransformPoint(FingerLeft.transform.position);
-            var FingerRightWorldRelative = FingerRight.transform.TransformPoint(FingerRight.transform.position);
-            
-            /*var FingerLeftWorldRelative = FingerLeft.transform.position;
-            var FingerRightWorldRelative = FingerRight.transform.position;
-            */
-
-            //Choose the closest finger
-            goal = Vector3.Distance(transform.position, FingerLeftWorldRelative) < Vector3.Distance(transform.position, FingerRightWorldRelative) ? FingerLeftWorldRelative : FingerRightWorldRelative;
-
-        } else
-        {
-            hasFingers = false;
-        }
-        goal.y = 0;
-        if (hasFingers)
-        {
-            if (Vector3.Distance(transform.position, goal) < handDetectionRange.y && Vector3.Distance(transform.position, goal) > handDetectionRange.x)
-            {
-                Debug.Log("Check passed");
-                _inputs = goal;
-            }
-            else
-            {
-                //Debug.Log("Check not passed");
-            }
-        } 
-
-        if (_inputs != Vector3.zero)
-            transform.forward = _inputs;
-    }
-
-    /// <summary>
-    /// Physic related
-    /// </summary>
-    private void MoveBodyToTarget(Vector3 targetPosition)
-    {
-        if (targetPosition == transform.position)
-            return;
-        if (targetPosition == Vector3.zero)
-            return;
-
-        Vector3 moveDiff = targetPosition - transform.position;
-        Vector3 moveDir = moveDiff.normalized;
-        _body.MovePosition(_body.position + moveDir * Speed * Time.fixedDeltaTime);
-
-        /*Vector3 moveDiff = targetPosition - transform.position;
-        Vector3 moveDir = moveDiff.normalized * 15f;
-        _body.MovePosition(_body.position + _inputs * Speed * Time.fixedDeltaTime);
-        if (moveDir.sqrMagnitude < moveDiff.sqrMagnitude)
-        {
-            _body.MovePosition(_body.position + moveDir * Speed * Time.fixedDeltaTime);
-        }
-        else
-        {
-            _body.MovePosition(_body.position + moveDiff * Speed * Time.fixedDeltaTime);
-        }
-        */
-    }
 
     //------------------------------------------------------------CHARACTER CONTROLLER----------------------------------------------------------------------------------------------------------//
+
+
+
+
+
 
 
 
     private void moveControllerTowardHand()
     {
 
-
-        var FingerLeft = handTracking.getIndexObject(false);
-        var FingerRight = handTracking.getIndexObject(true);
-
-        bool hasFingers = true;
-
-        Vector3 goal = Vector3.zero;
-        if (!handTracking.isFingerEnabled(FingerLeft) && handTracking.isFingerEnabled(FingerRight)) //Only Right hand
-        {
-            goal = IntoLocalCoord(transform, FingerRight.transform);
-        }
-        else if (handTracking.isFingerEnabled(FingerLeft) && !handTracking.isFingerEnabled(FingerRight)) //Only left hand
-        {
-            goal = IntoLocalCoord(transform, FingerLeft.transform);
-        }
-        else if (handTracking.isFingerEnabled(FingerLeft) && handTracking.isFingerEnabled(FingerRight)) //Both hands
-        {
-            var FingerLeftRelative = IntoLocalCoord(transform, FingerLeft.transform);
-            var FingerRightRelative = IntoLocalCoord(transform, FingerRight.transform);
-
-            //Choose the closest finger
-            goal = Vector3.Distance(transform.position, FingerLeftRelative) < Vector3.Distance(transform.position, FingerRightRelative) ? FingerLeftRelative : FingerRightRelative;
-
-        }
-        else
-        {
-            hasFingers = false;
-        }
+        Vector3 goal = this.currentTarget;
         goal.y = 0;
-        if (hasFingers)
+        if (this.handSelection.HasHands() && goal != Vector3.zero)
         {
-            if (Vector3.Distance(transform.position, goal) < handDetectionRange.y && Vector3.Distance(transform.position, goal) > handDetectionRange.x)
+            if (this.handSelection.rangePosition == RangeComparator.InRange)
             {
                 MoveControllerToPoint(goal);
 
@@ -340,9 +249,61 @@ public class AnimalMoveManager : MonoBehaviour
         */
     }
 
-    protected void rotateBasedOnSlope(Object ObjectToRotate, float SlopeAngle, Vector3 SlopeDirection)
+    private void CalculateNearestHand()
     {
-        
+        var FingerLeft = this.handSelection.handTracking.getIndexObject(false);
+        var FingerRight = this.handSelection.handTracking.getIndexObject(true);
+
+        bool hasFingers = true;
+
+        Vector3 goal = Vector3.zero;
+        if (!this.handSelection.handTracking.isFingerEnabled(FingerLeft) && this.handSelection.handTracking.isFingerEnabled(FingerRight)) //Only Right hand
+        {
+            this.handSelection.setHandedness(Hand.Right);
+            goal = IntoLocalCoord(transform, FingerRight.transform);
+        }
+        else if (this.handSelection.handTracking.isFingerEnabled(FingerLeft) && !this.handSelection.handTracking.isFingerEnabled(FingerRight)) //Only left hand
+        {
+            this.handSelection.setHandedness(Hand.Left);
+            goal = IntoLocalCoord(transform, FingerLeft.transform);
+        }
+        else if (this.handSelection.handTracking.isFingerEnabled(FingerLeft) && this.handSelection.handTracking.isFingerEnabled(FingerRight)) //Both hands
+        {
+            var FingerLeftRelative = IntoLocalCoord(transform, FingerLeft.transform);
+            var FingerRightRelative = IntoLocalCoord(transform, FingerRight.transform);
+
+            //Choose the closest finger
+            if(Vector3.Distance(transform.position, FingerLeftRelative) < Vector3.Distance(transform.position, FingerRightRelative)) {
+                this.handSelection.setHandedness(Hand.Left);
+                goal = IntoLocalCoord(transform, FingerLeft.transform);
+            } else {
+                this.handSelection.setHandedness(Hand.Right);
+                goal = IntoLocalCoord(transform, FingerRight.transform);
+            }
+
+        }
+        else
+        {
+            this.handSelection.setHandedness(Hand.None);
+            hasFingers = false;
+        }
+        if (hasFingers)
+        {
+            if (Vector3.Distance(transform.position, goal) < handDetectionRange.x)
+            {
+                this.handSelection.rangePosition = RangeComparator.Close;
+            } else if(Vector3.Distance(transform.position, goal) > handDetectionRange.y)
+            {
+                this.handSelection.rangePosition = RangeComparator.Far;
+            } else
+            {
+                this.handSelection.rangePosition = RangeComparator.InRange;
+            }
+        }
+        if(debug)
+            Debug.Log("Hand : " + this.handSelection.handedness + " Position : " + this.handSelection.rangePosition);
+
+        this.currentTarget = goal;
     }
 
 }
