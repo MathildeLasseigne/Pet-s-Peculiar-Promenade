@@ -112,6 +112,7 @@ public class AnimalMoveManager : MonoBehaviour
         } else
         {
             _isGrounded = _controller.isGrounded;
+            Debug.Log("Use controller grounded");
         }
         
 
@@ -152,7 +153,8 @@ public class AnimalMoveManager : MonoBehaviour
                 GetUp(false);
                 if(!isSitting)
                 {
-                    Debug.Log("isSitting = " + isSitting + "Animator sitting : " + animator.GetBool("isSitting"));
+                    if(debug)
+                        Debug.Log("isSitting = " + isSitting + "Animator sitting : " + animator.GetBool("isSitting"));
                     MoveControllerToPoint(goal);
                 }
 
