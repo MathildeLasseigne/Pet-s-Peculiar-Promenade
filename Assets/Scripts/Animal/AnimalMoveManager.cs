@@ -144,7 +144,7 @@ public class AnimalMoveManager : MonoBehaviour
     {
 
         Vector3 goal = this.currentTarget;
-        goal.y = 0;
+        //goal.y = 0;
         if (this.handSelection.HasHands() && goal != Vector3.zero)
         {
             if (this.handSelection.rangePosition == RangeComparator.InRange)
@@ -312,6 +312,7 @@ public class AnimalMoveManager : MonoBehaviour
             this.handSelection.setHandedness(Hand.None);
             hasFingers = false;
         }
+        goal.y = transform.position.y;
         if (hasFingers)
         {
             if (Vector3.Distance(transform.position, goal) < handDetectionRange.x)

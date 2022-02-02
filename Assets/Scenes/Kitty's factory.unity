@@ -2474,7 +2474,7 @@ MonoBehaviour:
   AnimalBody: {fileID: 1799577041}
   animator: {fileID: 729715020}
   Speed: 1
-  JumpHeight: 2
+  JumpHeight: 1
   DashDistance: 5
   Drag: {x: 0, y: 0, z: 0}
   Gravity: -9.81
@@ -2548,6 +2548,38 @@ MonoBehaviour:
             m_FloatArgument: 0
             m_StringArgument: 
             m_BoolArgument: 0
+          m_CallState: 2
+  - keyword: Sit
+    response:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1279536555}
+          m_TargetAssemblyTypeName: AnimalMoveManager, Assembly-CSharp
+          m_MethodName: Sit
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
+  - keyword: Get Up
+    response:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1279536555}
+          m_TargetAssemblyTypeName: AnimalMoveManager, Assembly-CSharp
+          m_MethodName: GetUp
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
           m_CallState: 2
   persistentKeywords: 0
   speechConfirmationTooltipPrefab: {fileID: 0}
