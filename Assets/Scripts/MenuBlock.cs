@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations;
 
 public class MenuBlock : MonoBehaviour
 {
-	public GameObject MenuGameObject;
+	private Menu menu;
+	public GameObject MenuBlockPrefab;
+	
     // Start is called before the first frame update
     void Start()
     {
@@ -12,7 +15,32 @@ public class MenuBlock : MonoBehaviour
     }
 	
 	//TO DO, remove this object from menu after manipulation and add new object to menu
-	void RemoveFromMenu(){
+	
+	//called on manipulation started
+	public void RemoveFromMenu(){
+		//remove the block's parent
+		this.menu = gameObject.transform.parent.GetComponent<Menu>();
+		gameObject.transform.parent = null;
+
+	}
+
+	
+	//called on manipulation ended
+	public void RecreateBlockInMenu(){
+		if(menu){
+		menu.RecreateBlockInMenu();
+		} else {
+			Debug.Log(menu);
+		}
+		
+		Destroy(GetComponent<MenuBlock>());
+		/*//create new block in menu
+		Transform menuTransform=MenuContent.GetComponent<Transform>();
+		GameObject newMenuBlock = Instantiate(MenuBlockPrefab, menuTransform);
+		newMenuBlock.GetComponent<MenuBlock>().MenuContent=MenuContent;
+		//GameObject newMenuBlock = Instantiate(this.gameObject, menuTransform.position, menuTransform.rotation, menuTransform);
+		//destroy this script
+		Destroy(GetComponent<MenuBlock>());*/
 		
 	}
 

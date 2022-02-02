@@ -4,17 +4,8 @@ using UnityEngine;
 using Microsoft.MixedReality.Toolkit.UI; //to locate ObjectManipulator script
 using Microsoft.MixedReality.Toolkit.Input; //to locate NearInteractionGrabbable script
 
-/*using System.Collections;
-
-// Copy meshes from children into the parent's Mesh.
-// CombineInstance stores the list of meshes.  These are combined
-// and assigned to the attached Mesh.
-
-[RequireComponent(typeof(MeshFilter))]
-[RequireComponent(typeof(MeshRenderer))]*/
 public class BlockCollision : MonoBehaviour
 {
-	//public List <GameObject> stickedBlocks = new List<GameObject> ();
 	
 	//public for debug purpose in the inspector
 	public GameObject CollidingGameObject;
@@ -34,10 +25,9 @@ public class BlockCollision : MonoBehaviour
 		velocity = (transform.position - previous) / Time.deltaTime;
 		previous = transform.position;
 		
-		//only the highest parent can be manipulated thanks to the ObjectManipulator script,
+		//only the highest *Block* parent can be manipulated thanks to the ObjectManipulator script,
 		//it's disabled for its children
-		//if (transform.parent != null && !enableManipulator)
-		if (transform.parent != null)
+		if (transform.parent != null && transform.parent.gameObject.layer == LayerMask.NameToLayer("Block"))
 		{
 			transform.GetComponent<ObjectManipulator>().enabled = false;
 			transform.GetComponent<NearInteractionGrabbable>().enabled = false;
@@ -96,7 +86,13 @@ public class BlockCollision : MonoBehaviour
 		{
 			return;
 		}
-
+		
+		// merge blocks between their highest parent
+		while(CollidingGameObject.transform.parent!=null
+		&& CollidingGameObject.transform.parent.gameObject.layer == LayerMask.NameToLayer("Block")){
+			Destroy(CollidingGameObject.GetComponent<Rigidbody>());
+			CollidingGameObject=CollidingGameObject.transform.parent.gameObject;
+		}
 		CollidingGameObject.transform.parent = gameObject.transform;
 		Destroy(CollidingGameObject.GetComponent<Rigidbody>());
 		Debug.Log("blocks merged");
@@ -116,25 +112,7 @@ public class BlockCollision : MonoBehaviour
 	
 	
 	
-	//old
-	/*void CombineMesh()
-    {
-        MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
-        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
 
-        int i = 0;
-        while (i < meshFilters.Length)
-        {
-            combine[i].mesh = meshFilters[i].sharedMesh;
-            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-            meshFilters[i].gameObject.SetActive(false);
-
-            i++;
-        }
-        transform.GetComponent<MeshFilter>().mesh = new Mesh();
-        transform.GetComponent<MeshFilter>().mesh.CombineMeshes(combine, false);
-        transform.gameObject.SetActive(true);
-    }*/
 
 	/*protected Transform stuckTo = null;
 	protected Vector3 offset = Vector3.zero;
