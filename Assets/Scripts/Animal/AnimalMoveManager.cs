@@ -50,26 +50,35 @@ class HandSelection
         this.handedness = handedness;
     }
 }
+
+[RequireComponent(typeof(CharacterController))]
 public class AnimalMoveManager : MonoBehaviour
 {
     public bool debug = false;
 
     [SerializeField]
     private GameObject AnimalBody;
+    [SerializeField]
+    private Animator animator;
 
     [Header("Move properties")]
     public float Speed = 1f;
     public float JumpHeight = 2f;
-    public float GroundDistance = 0.2f;
     public float DashDistance = 5f;
-    public LayerMask Ground;
+    
 
     private Vector3 _velocity;
     public Vector3 Drag;
     public float Gravity = -9.81f;
 
-    private bool _isGrounded = true;
+    [Header("Ground checker")]
+    [SerializeField]
+    ///Object at the bottom of the character
     private Transform _groundChecker;
+    public LayerMask Ground;
+    public float GroundDistance = 0.2f;
+
+    private bool _isGrounded = true;
 
     [Header("Hand properties")]
     public HandTracking handTracking;
@@ -81,24 +90,33 @@ public class AnimalMoveManager : MonoBehaviour
     [Header("CharacterController")]
     private CharacterController _controller;
 
+    [Header("Sitting area")]
+    private bool isSitting = false;
+    private bool sittingLock = false;
+
     
 
     void Start()
     {
         _controller = GetComponent<CharacterController>();
-        _groundChecker = transform.GetChild(0);
         handSelection = new HandSelection(handTracking);
     }
 
     void Update()
     {
         CalculateNearestHand();
+
+        if (_groundChecker)
+        {
+            _isGrounded = Physics.CheckSphere(_groundChecker.position, GroundDistance, Ground, QueryTriggerInteraction.Ignore);
+        } else
+        {
+            _isGrounded = _controller.isGrounded;
+        }
         
-        _isGrounded = _controller.isGrounded;
 
         if (_controller)
         {
-            _isGrounded = _controller.isGrounded;
             if (_isGrounded && _velocity.y < 0)
                 _velocity.y = 0f;
 
@@ -131,13 +149,20 @@ public class AnimalMoveManager : MonoBehaviour
         {
             if (this.handSelection.rangePosition == RangeComparator.InRange)
             {
-                MoveControllerToPoint(goal);
+                GetUp(false);
+                if(!isSitting)
+                {
+                    Debug.Log("isSitting = " + isSitting + "Animator sitting : " + animator.GetBool("isSitting"));
+                    MoveControllerToPoint(goal);
+                }
 
             }
             else
             {
-                //Debug.Log("Check not passed");
+                Sit(false);
             }
+        } else {
+            Sit(false);
         }
 
 
@@ -170,9 +195,9 @@ public class AnimalMoveManager : MonoBehaviour
         _controller.Move(move);
         if (AnimalBody)
         {
+            move.y = 0;
             if (move != Vector3.zero)
             {
-                move.y = 0;
                AnimalBody.transform.forward = move;
             }
         }
@@ -194,7 +219,7 @@ public class AnimalMoveManager : MonoBehaviour
     }
 
 
-    public void JumpController()
+    public void Jump()
     {
         if (_isGrounded)
             _velocity.y += Mathf.Sqrt(JumpHeight * -2f * Gravity);
@@ -304,6 +329,57 @@ public class AnimalMoveManager : MonoBehaviour
             Debug.Log("Hand : " + this.handSelection.handedness + " Position : " + this.handSelection.rangePosition);
 
         this.currentTarget = goal;
+    }
+
+    public void Sit(bool lockSit)
+    {
+        if (!isSitting)
+        {
+            if (lockSit)
+            {
+                this.sittingLock = true;
+            }
+            this.isSitting = true;
+            if (animator)
+            {
+                animator.SetBool("isWalking", false);
+                animator.SetBool("isSitting", true);
+            }
+        }
+    }
+
+    public void GetUp(bool unlockSit)
+    {
+        if (isSitting)
+        {
+            if (unlockSit)
+            {
+                this.sittingLock = false;
+            }
+            if (!this.sittingLock)
+            {
+                if (animator)
+                {
+                    /*animator.SetBool("isSitting", false);
+                    animator.SetBool("isWalking", true);
+                    */
+                    StartCoroutine(GetUpRoutine());
+                } else
+                {
+                    this.isSitting = false;
+                }
+            }
+        }
+    }
+
+    private IEnumerator GetUpRoutine()
+    {
+        animator.SetBool("isSitting", false);
+        animator.SetBool("isWalking", true);
+
+        yield return new WaitWhile(() => animator.IsPlayingAnimation("Base Layer.GetUp", 0) || animator.IsPlayingAnimation("Base Layer.Sitting", 0) || animator.IsPlayingAnimation("Base Layer.Sit", 0) || animator.IsInTransition(0));
+
+        this.isSitting = false;
     }
 
 }
