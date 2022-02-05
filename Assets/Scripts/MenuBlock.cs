@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 
+public enum ItemType { Cube, Trampoline, Other }
 public class MenuBlock : MonoBehaviour
 {
 	private Menu menu;
-	public GameObject MenuBlockPrefab;
+	//public GameObject MenuItemPrefab;
+	public ItemType itemType;
 	
     // Start is called before the first frame update
     void Start()
@@ -28,7 +30,7 @@ public class MenuBlock : MonoBehaviour
 	//called on manipulation ended
 	public void RecreateBlockInMenu(){
 		if(menu){
-		menu.RecreateBlockInMenu();
+		menu.RecreateBlockInMenu(itemType);
 		} else {
 			Debug.Log(menu);
 		}
@@ -36,7 +38,7 @@ public class MenuBlock : MonoBehaviour
 		Destroy(GetComponent<MenuBlock>());
 		/*//create new block in menu
 		Transform menuTransform=MenuContent.GetComponent<Transform>();
-		GameObject newMenuBlock = Instantiate(MenuBlockPrefab, menuTransform);
+		GameObject newMenuBlock = Instantiate(MenuItemPrefab, menuTransform);
 		newMenuBlock.GetComponent<MenuBlock>().MenuContent=MenuContent;
 		//GameObject newMenuBlock = Instantiate(this.gameObject, menuTransform.position, menuTransform.rotation, menuTransform);
 		//destroy this script

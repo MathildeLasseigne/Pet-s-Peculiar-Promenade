@@ -69,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 53ea63593b32415faf734536616f5fb3, type: 2}
+  - {fileID: 2100000, guid: 47f3c5e1cb6142ba9697cd4c86d74321, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -351,6 +351,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 6995137913810430224}
+        m_TargetAssemblyTypeName: BlockCollision, Assembly-CSharp
+        m_MethodName: deleteOrNotInBin
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   onHoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -396,6 +408,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CollidingGameObject: {fileID: 0}
+  isCollidingBin: 0
   velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &6995137913810430238
 MonoBehaviour:
@@ -424,5 +437,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa0e387a66c81ba409c21e0d9663aa54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MenuContent: {fileID: 0}
-  MenuBlockPrefab: {fileID: 6995137913810430226}
+  itemType: 0

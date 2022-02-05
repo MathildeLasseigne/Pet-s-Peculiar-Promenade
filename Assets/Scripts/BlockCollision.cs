@@ -10,6 +10,7 @@ public class BlockCollision : MonoBehaviour
 	//public for debug purpose in the inspector
 	public GameObject CollidingGameObject;
 	//public bool enableManipulator=false;
+	public bool isCollidingBin;
 	
 	//getting speed without using rigid body
 	private Vector3 previous;
@@ -70,6 +71,8 @@ public class BlockCollision : MonoBehaviour
 			//other.gameObject.GetComponent<ObjectManipulator>().enabled = false;
 			//enableManipulator = true;
 
+		} else if (other.gameObject.layer == LayerMask.NameToLayer("Bin")){
+			isCollidingBin=true;
 		}
 	}
 	
@@ -77,6 +80,8 @@ public class BlockCollision : MonoBehaviour
 		if (other.gameObject.layer == LayerMask.NameToLayer("Block") && other.gameObject==CollidingGameObject){
 			CollidingGameObject=null;
 			//enableManipulator = false;
+		} else if (other.gameObject.layer == LayerMask.NameToLayer("Bin")){
+			isCollidingBin=false;
 		}
 	}
 	
@@ -105,7 +110,12 @@ public class BlockCollision : MonoBehaviour
 
 	}
 	
-	
+	// called on manipulation ended, checks if object was released in the bin
+	public void deleteOrNotInBin(){
+		if (isCollidingBin){
+			Destroy(this.gameObject);
+		}
+	}
 	
 	
 	
