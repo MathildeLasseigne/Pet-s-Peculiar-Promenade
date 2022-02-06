@@ -64,6 +64,8 @@ public class AnimalMoveManager : MonoBehaviour
     [Header("Move properties")]
     public float Speed = 1f;
     public float JumpHeight = 2f;
+    public float JumpTime = 0f;
+    public JumpManager jumpManager;
     public float DashDistance = 5f;
     
 
@@ -71,14 +73,16 @@ public class AnimalMoveManager : MonoBehaviour
     public Vector3 Drag;
     public float Gravity = -9.81f;
 
+    public bool _applyGravity = true;
+
     [Header("Ground checker")]
+    ///Object at the bottom of the character, to check if it touch the ground.
     [SerializeField]
-    ///Object at the bottom of the character
-    private Transform _groundChecker;
+    private List<Transform> _groundCheckers = new List<Transform>();
     public LayerMask Ground;
     public float GroundDistance = 0.2f;
 
-    private bool _isGrounded = true;
+    public bool _isGrounded { get; private set; }
 
     [Header("Hand properties")]
     public HandTracking handTracking;
@@ -100,20 +104,29 @@ public class AnimalMoveManager : MonoBehaviour
     {
         _controller = GetComponent<CharacterController>();
         handSelection = new HandSelection(handTracking);
-    }
+        _isGrounded = true;
+}
 
     void Update()
     {
         CalculateNearestHand();
-
-        if (_groundChecker)
+        if (_applyGravity)
         {
-            _isGrounded = Physics.CheckSphere(_groundChecker.position, GroundDistance, Ground, QueryTriggerInteraction.Ignore);
+            if (_groundCheckers.Capacity > 0)
+            {
+                //_isGrounded = Physics.CheckSphere(_groundChecker.position, GroundDistance, Ground, QueryTriggerInteraction.Ignore);
+                _isGrounded = CheckGround(_groundCheckers);
+            }
+            else
+            {
+                _isGrounded = _controller.isGrounded;
+                Debug.Log("Use controller grounded");
+            }
         } else
         {
-            _isGrounded = _controller.isGrounded;
-            Debug.Log("Use controller grounded");
+            _isGrounded = true;
         }
+        
         
 
         if (_controller)
@@ -208,7 +221,10 @@ public class AnimalMoveManager : MonoBehaviour
 
     private void AddGravityAndFriction(bool addFriction)
     {
-        _velocity.y += Gravity * Time.deltaTime; //Add gravity
+        if (_applyGravity)
+        {
+            _velocity.y += Gravity * Time.deltaTime; //Add gravity
+        }
 
         if (addFriction)
         {
@@ -220,14 +236,6 @@ public class AnimalMoveManager : MonoBehaviour
         _controller.Move(_velocity * Time.deltaTime);
     }
 
-
-    public void Jump()
-    {
-        if (_isGrounded)
-            _velocity.y += Mathf.Sqrt(JumpHeight * -2f * Gravity);
-
-
-    }
 
 
 
@@ -338,15 +346,18 @@ public class AnimalMoveManager : MonoBehaviour
     {
         if (!isSitting)
         {
-            if (lockSit)
+            if(jumpManager && !jumpManager.isJumping)
             {
-                this.sittingLock = true;
-            }
-            this.isSitting = true;
-            if (animator)
-            {
-                animator.SetBool("isWalking", false);
-                animator.SetBool("isSitting", true);
+                if (lockSit)
+                {
+                    this.sittingLock = true;
+                }
+                this.isSitting = true;
+                if (animator)
+                {
+                    animator.SetBool("isWalking", false);
+                    animator.SetBool("isSitting", true);
+                }
             }
         }
     }
@@ -375,6 +386,7 @@ public class AnimalMoveManager : MonoBehaviour
         }
     }
 
+
     private IEnumerator GetUpRoutine()
     {
         animator.SetBool("isSitting", false);
@@ -385,4 +397,58 @@ public class AnimalMoveManager : MonoBehaviour
         this.isSitting = false;
     }
 
+    public void Jump()
+    {
+        if (jumpManager)
+        {
+            if (!jumpManager.isJumping)
+            {
+                jumpManager.PrepJump();
+                Invoke("JumpWithWait", JumpTime);
+            }
+        } else
+        {
+            JumpWithWait();
+        }
+            
+    }
+
+    private void JumpWithWait()
+    {
+        if (jumpManager)
+        {
+            jumpManager.Jump();
+        }
+        if (_isGrounded)
+            _velocity.y += Mathf.Sqrt(JumpHeight * -2f * Gravity);
+    }
+
+
+
+    public void resetVelocity()
+    {
+        _velocity = Vector3.zero;
+    }
+
+    public bool isGrounded()
+    {
+        return _isGrounded;
+    }
+
+    public bool CheckGround(List<Transform> groundCheckers)
+    {
+        bool touchGround = false;
+
+        foreach(Transform groundChecker in groundCheckers)
+        {
+            touchGround = touchGround || Physics.CheckSphere(groundChecker.position, GroundDistance, Ground, QueryTriggerInteraction.Ignore);
+        }
+        return touchGround;
+    }
+
+
+    public Vector3 getVelocity()
+    {
+        return _velocity;
+    }
 }
