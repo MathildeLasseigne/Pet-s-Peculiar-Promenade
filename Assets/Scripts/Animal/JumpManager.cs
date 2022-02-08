@@ -71,7 +71,7 @@ public class JumpManager : MonoBehaviour
             AnimTrigger(TriggerEnum.prepJump);
             /*ResetTriggers();
             animator.SetTrigger("prepJump");*/
-            animator.SetBool("isSitting", false);
+            //animator.SetBool("isSitting", false);
         }
         
     }
