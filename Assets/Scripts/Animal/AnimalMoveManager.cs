@@ -94,10 +94,17 @@ public class AnimalMoveManager : MonoBehaviour
     [Header("CharacterController")]
     private CharacterController _controller;
 
-    [Header("Sitting area")]
+    [Header("Sitting properties")]
+    [SerializeField]
+    private bool lockSitOnAwake = false;
     private bool isSitting = false;
     private bool sittingLock = false;
+    
 
+    [Header("Audio")]
+    public AudioSource meow;
+    public AudioSource purr;
+    private RangeComparator oldRangeSelection = RangeComparator.Other;
     
 
     void Start()
@@ -105,6 +112,10 @@ public class AnimalMoveManager : MonoBehaviour
         _controller = GetComponent<CharacterController>();
         handSelection = new HandSelection(handTracking);
         _isGrounded = true;
+        if (lockSitOnAwake)
+        {
+            Sit(true);
+        }
 }
 
     void Update()
@@ -138,7 +149,7 @@ public class AnimalMoveManager : MonoBehaviour
             AddGravityAndFriction(false);
         }
 
-        
+        doSound();
 
     }
 
@@ -161,6 +172,7 @@ public class AnimalMoveManager : MonoBehaviour
         //goal.y = 0;
         if (this.handSelection.HasHands() && goal != Vector3.zero)
         {
+            //Debug.Log("Hand position : " + this.handSelection.rangePosition);
             if (this.handSelection.rangePosition == RangeComparator.InRange)
             {
                 GetUp(false);
@@ -216,7 +228,6 @@ public class AnimalMoveManager : MonoBehaviour
                AnimalBody.transform.forward = move;
             }
         }
-        
     }
 
     private void AddGravityAndFriction(bool addFriction)
@@ -451,4 +462,53 @@ public class AnimalMoveManager : MonoBehaviour
     {
         return _velocity;
     }
+
+    //------------------------------------Audio
+
+    private void doSound()
+    {
+        if(meow && purr)
+        {
+
+            
+            if (oldRangeSelection != handSelection.rangePosition)
+            {
+                //Debug.Log("Change : old = " + oldRangeSelection.ToString() + " new = " + handSelection.rangePosition.ToString());
+                switch (oldRangeSelection)
+                {
+                    case RangeComparator.Close:
+                        purr.Stop();
+                        break;
+                    case RangeComparator.InRange:
+                        switch (handSelection.rangePosition)
+                        {
+                            case RangeComparator.Close:
+                                if (! purr.isPlaying)
+                                {
+                                    purr.Play();
+                                }
+                                break;
+                            case RangeComparator.Far:
+                                meow.Play();
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case RangeComparator.Far:
+                        break;
+                    default: break;
+                }
+                if(handSelection.rangePosition == RangeComparator.Other)
+                {
+                    purr.Stop();
+                    meow.Play();
+                }
+            }
+        }
+        //Debug.Log("No Change : old = " + oldRangeSelection.ToString() + " new = " + handSelection.rangePosition.ToString());
+        oldRangeSelection = handSelection.rangePosition;
+    }
+
+
 }
