@@ -60,7 +60,8 @@ public class BlockCollision : MonoBehaviour
 		if (other.gameObject.layer == LayerMask.NameToLayer("Block")){
 
 			//ignore the OnTriggerEnter event for the object immobile/slower than the other object
-			if(velocity.magnitude < other.gameObject.GetComponent<BlockCollision>().velocity.magnitude)
+			if(other.gameObject.GetComponent<BlockCollision>()!=null &&
+			velocity.magnitude < other.gameObject.GetComponent<BlockCollision>().velocity.magnitude)
 			{
 				return;
 			}
@@ -90,7 +91,10 @@ public class BlockCollision : MonoBehaviour
 		if(CollidingGameObject==null)
 		{
 			return;
-		}
+		} /*else if(GetComponent<MenuBlock>().itemType!=CollidingGameObject.GetComponent<MenuBlock>().itemType){
+			Debug.Log("different types, not merged");
+			return;
+		}*/
 		
 		// merge blocks between their highest parent
 		while(CollidingGameObject.transform.parent!=null

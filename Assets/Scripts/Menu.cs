@@ -6,6 +6,8 @@ public class Menu : MonoBehaviour
 {
 	public GameObject CubePrefab;
 	public GameObject TrampolinePrefab;
+	public GameObject TrapPrefab;
+
     // Start is called before the first             frame update
     void Start()
     {
@@ -21,13 +23,18 @@ public class Menu : MonoBehaviour
 		{
 			case ItemType.Cube:
 				newMenuItem = Instantiate(CubePrefab, menuTransform);
-				Debug.Log("trampoline created");
+				Debug.Log("cube created");
 				break;
 				
 			case ItemType.Trampoline:
 				//newMenuItem = Instantiate(TrampolinePrefab, menuTransform.position, menuTransform.rotation, menuTransform);
 				newMenuItem = Instantiate(TrampolinePrefab, menuTransform);
 				Debug.Log("trampoline created");
+				break;
+				
+			case ItemType.Trap:
+				newMenuItem = Instantiate(TrapPrefab, menuTransform);
+				Debug.Log("trap created");
 				break;
 
 			default:

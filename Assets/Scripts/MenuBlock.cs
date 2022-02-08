@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 
-public enum ItemType { Cube, Trampoline, Other }
+public enum ItemType { Cube, Trampoline, Trap, Other }
 public class MenuBlock : MonoBehaviour
 {
 	private Menu menu;
@@ -22,6 +22,11 @@ public class MenuBlock : MonoBehaviour
 	public void RemoveFromMenu(){
 		//remove the block's parent
 		this.menu = gameObject.transform.parent.GetComponent<Menu>();
+		if(itemType==ItemType.Trap){ //menu is the parent of the parent of this script for the trap
+			this.menu = gameObject.transform.parent.parent.GetComponent<Menu>();
+			gameObject.transform.parent.parent = null;
+			return;
+		}
 		gameObject.transform.parent = null;
 
 	}

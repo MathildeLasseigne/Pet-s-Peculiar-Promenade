@@ -18,19 +18,4 @@ public class Trampoline : MonoBehaviour
 			other.GetComponent<AnimalMoveManager>().Jump();
 		}
 	}
-	
-	//called on manipulation started
-	/*public void RemoveFromMenu(){
-		//remove the trampoline's parent
-		this.menu = gameObject.transform.parent.GetComponent<Menu>();
-		gameObject.transform.parent = null;
-		
-		GetComponent<Transform>().scale*=2;
-	}*/
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
