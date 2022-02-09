@@ -198,7 +198,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sphereMarker: {fileID: 371810098415194746, guid: c022e8a1912300c4eaa07c1bafa9794d, type: 3}
-  showObjects: 1
+  showObjects: 0
 --- !u!4 &152369935
 Transform:
   m_ObjectHideFlags: 0
