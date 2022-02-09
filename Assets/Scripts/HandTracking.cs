@@ -27,6 +27,7 @@ public class HandTracking : MonoBehaviour
 
     MixedRealityPose pose;
 
+    [SerializeField]
     private bool showObjects = true;
 
     void Start()
