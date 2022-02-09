@@ -89,6 +89,8 @@ public class AnimalMoveManager : MonoBehaviour
     public Vector2 handDetectionRange = new Vector2(0.5f, 3.5f);
     private HandSelection handSelection;
 
+    private RangeComparator oldRangeSelection = RangeComparator.Other;
+
     private Vector3 currentTarget = Vector3.zero; //The position of the index of the current hand selected. Is Vector3.zero if no target is selected
 
     [Header("CharacterController")]
@@ -104,7 +106,7 @@ public class AnimalMoveManager : MonoBehaviour
     [Header("Audio")]
     public AudioSource meow;
     public AudioSource purr;
-    private RangeComparator oldRangeSelection = RangeComparator.Other;
+    public AudioSource crying;
     
 
     void Start()
@@ -474,7 +476,7 @@ public class AnimalMoveManager : MonoBehaviour
             if (oldRangeSelection != handSelection.rangePosition)
             {
                 //Debug.Log("Change : old = " + oldRangeSelection.ToString() + " new = " + handSelection.rangePosition.ToString());
-                switch (oldRangeSelection)
+                /*switch (oldRangeSelection)
                 {
                     case RangeComparator.Close:
                         purr.Stop();
@@ -503,12 +505,90 @@ public class AnimalMoveManager : MonoBehaviour
                 {
                     purr.Stop();
                     meow.Play();
+                }*/
+                switch (oldRangeSelection)
+                {
+                    case RangeComparator.Close:
+                        Purr(false);
+                        break;
+                    case RangeComparator.InRange:
+                        switch (handSelection.rangePosition)
+                        {
+                            case RangeComparator.Close:
+                                if (!purr.isPlaying)
+                                {
+                                    Purr(true);
+                                }
+                                break;
+                            case RangeComparator.Far:
+                                Meow();
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case RangeComparator.Far:
+                        break;
+                    default: break;
                 }
+                if (handSelection.rangePosition == RangeComparator.Other)
+                {
+                    Purr(false);
+                    Meow();
+                }
+
             }
         }
         //Debug.Log("No Change : old = " + oldRangeSelection.ToString() + " new = " + handSelection.rangePosition.ToString());
         oldRangeSelection = handSelection.rangePosition;
     }
 
+    public void Meow()
+    {
+        if (meow)
+        {
+            if(!isCrying())
+            {
+                meow.Play();
+            }
+            
+        }
+    }
+
+    public void Purr(bool play)
+    {
+        if (purr)
+        {
+            if (play)
+            {
+                if(!isCrying())
+                {
+                    purr.Play();
+                }
+                
+            } else
+            {
+                purr.Stop();
+            }
+        }
+    }
+
+
+    public void Cry()
+    {
+        if (crying)
+        {
+            crying.Play();
+        }
+    }
+
+    public bool isCrying()
+    {
+        if (crying)
+        {
+            return crying.isPlaying;
+        }
+        return false;
+    }
 
 }

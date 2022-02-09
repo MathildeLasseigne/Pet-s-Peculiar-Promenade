@@ -7,6 +7,8 @@ using UnityEngine;
 /// </summary>
 public class SavePoint : MonoBehaviour
 {
+    private GameObject savedObject;
+
     [SerializeField]
     private Transform savePoint;
 
@@ -33,20 +35,28 @@ public class SavePoint : MonoBehaviour
     {
         originPosition = gameObject.transform.position;
         originRotation = gameObject.transform.rotation;
+
+        if(!savedObject)
+        {
+            savedObject = this.gameObject;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (checkY && gameObject.transform.position.y < posYMinBeforeReset)
+        //Debug.Log("Update, position x : "+ savedObject.transform.position.x);
+        //Debug.Log(savedObject.transform.position);
+        //Debug.Log("save point : " + savePoint.position);
+        if (checkY && savedObject.transform.position.y < posYMinBeforeReset)
         {
             goToSavePoint();
         }
-        if (checkX && gameObject.transform.position.x < posXMinBeforeReset)
+        if (checkX && savedObject.transform.position.x < posXMinBeforeReset)
         {
             goToSavePoint();
         }
-        if (checkZ && gameObject.transform.position.z < posZMinBeforeReset)
+        if (checkZ && savedObject.transform.position.z < posZMinBeforeReset)
         {
             goToSavePoint();
         }
@@ -57,15 +67,40 @@ public class SavePoint : MonoBehaviour
     /// </summary>
     public void goToSavePoint()
     {
+        AnimalMoveManager moveManager = savedObject.GetComponent<AnimalMoveManager>();
+        if (moveManager)
+        {
+            //Debug.Log("Got move manager");
+            moveManager.Sit(true);
+
+            moveManager.Cry();
+        }
+        CharacterController cc = savedObject.GetComponent<CharacterController>();
+        if (cc)
+        {
+            cc.enabled = false;
+        }
+        Debug.Log("Save point loaded");
         if (savePoint)
         {
-            gameObject.transform.position = savePoint.position;
-            gameObject.transform.rotation = savePoint.rotation;
+            savedObject.transform.position = savePoint.position;
+            savedObject.transform.rotation = savePoint.rotation;
         } else
         {
-            gameObject.transform.position = originPosition;
-            gameObject.transform.rotation = originRotation;
+            savedObject.transform.position = originPosition;
+            savedObject.transform.rotation = originRotation;
         }
+
         
+        if (moveManager)
+        {
+            moveManager.resetVelocity();
+            moveManager.Meow();
+        }
+        if (cc)
+        {
+            cc.enabled = true;
+        }
+
     }
 }
