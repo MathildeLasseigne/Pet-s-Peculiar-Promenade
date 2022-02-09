@@ -388,9 +388,41 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1788531237}
     m_Modifications:
+    - target: {fileID: 2007125246552703749, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
+      propertyPath: handTracking
+      value: 
+      objectReference: {fileID: 152369934}
     - target: {fileID: 2007125246576733481, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
       propertyPath: m_Name
       value: Kitty's plateform
+      objectReference: {fileID: 0}
+    - target: {fileID: 2007125246576733484, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
+      propertyPath: onManipulationEnded.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2007125246576733484, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
+      propertyPath: onManipulationEnded.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2007125246576733484, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
+      propertyPath: onManipulationEnded.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1609472593}
+    - target: {fileID: 2007125246576733484, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
+      propertyPath: onManipulationEnded.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2007125246576733484, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
+      propertyPath: onManipulationEnded.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: RemoveFromMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 2007125246576733484, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
+      propertyPath: onManipulationEnded.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MenuCat, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2007125246576733484, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
+      propertyPath: onManipulationEnded.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 2007125246576733488, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
       propertyPath: m_RootOrder
@@ -450,6 +482,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
+--- !u!1 &1135606928 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1248388845248998542, guid: 1dd77c210da34654899a79ee864195ff, type: 3}
+  m_PrefabInstance: {fileID: 1578208179}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1578208179
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -507,6 +544,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1dd77c210da34654899a79ee864195ff, type: 3}
+--- !u!1 &1609472585 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2007125246576733481, guid: 2f7f088f780485d4bb826b9f4bd7f183, type: 3}
+  m_PrefabInstance: {fileID: 549202195}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1609472593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1609472585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05934d446b9163d449a3bd90730ed3d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialLabel: {fileID: 1135606928}
 --- !u!4 &1788531237 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5898162211567953032, guid: 1dd77c210da34654899a79ee864195ff, type: 3}
