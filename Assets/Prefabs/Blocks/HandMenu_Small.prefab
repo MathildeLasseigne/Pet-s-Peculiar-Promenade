@@ -205,6 +205,7 @@ GameObject:
   - component: {fileID: 1248388845038322198}
   - component: {fileID: 1248388845038322197}
   - component: {fileID: 1248388845038322196}
+  - component: {fileID: 1727764323901806853}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -296,6 +297,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &1727764323901806853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1248388845038322194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a903890d79aa88c49b38a64bac8e2019, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1248388845248008929
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,6 +402,7 @@ GameObject:
   - component: {fileID: 1248388845248998530}
   - component: {fileID: 1248388845248998529}
   - component: {fileID: 1248388845248998528}
+  - component: {fileID: 6020620357624920365}
   m_Layer: 5
   m_Name: TutorialCanvas
   m_TagString: Untagged
@@ -477,6 +491,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &6020620357624920365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1248388845248998542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a903890d79aa88c49b38a64bac8e2019, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1248388845713670801
 GameObject:
   m_ObjectHideFlags: 0
@@ -705,7 +731,7 @@ GameObject:
   - component: {fileID: 1248388844950205137}
   - component: {fileID: 1248388844950205136}
   - component: {fileID: 1248388844950205138}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HandMenu_Small
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -721,7 +747,7 @@ Transform:
   m_GameObject: {fileID: 5898162211727409914}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.0601, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5898162211567953032}
   - {fileID: 1248388845248998543}
@@ -758,7 +784,7 @@ MonoBehaviour:
   trackedHandness: 3
   trackedHandJoint: 2
   transformOverride: {fileID: 0}
-  additionalOffset: {x: 0, y: 0, z: 0.03}
+  additionalOffset: {x: -0.08, y: 0.08, z: 0.03}
   additionalRotation: {x: 0, y: -5, z: 0}
   updateSolvers: 1
 --- !u!114 &5898162211727409912

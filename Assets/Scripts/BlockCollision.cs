@@ -116,10 +116,38 @@ public class BlockCollision : MonoBehaviour
 	
 	// called on manipulation ended, checks if object was released in the bin
 	public void deleteOrNotInBin(){
-		if (isCollidingBin){
+		//checks if this object or its children are colliding bin
+		if (isCollidingBin || ChildIsCollidingBin(this.gameObject)){
 			Destroy(this.gameObject);
+			Debug.Log("object deleted in bin");
 		}
+			/*while(transform!=null && transform.parent!=null
+		&& transform.parent.gameObject.layer == LayerMask.NameToLayer("Block")){
+				CollidingGameObject=CollidingGameObject.transform.parent.gameObject;
+				Destroy(CollidingGameObject);
+				Debug.Log("object deleted in bin");
+			}*/
 	}
+	
+	// recursively checks if any child block is colliding bin
+	private bool ChildIsCollidingBin(GameObject obj)
+    {
+        if (obj == null)
+            return false;
+
+        foreach (Transform child in obj.transform)
+        {
+            if (null == child)
+                continue;
+            if (child.GetComponent<BlockCollision>()) {
+                if(child.GetComponent<BlockCollision>().isCollidingBin){
+					return true;
+				}
+            }
+            return (false || ChildIsCollidingBin(child.gameObject));
+        }
+		return false;
+    }
 	
 	
 	
